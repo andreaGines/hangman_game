@@ -17,7 +17,7 @@ all_words = []
 for w in ifs.read().split():
 	all_words.append(w)
 
-# Sort the x Coordinates to be passed to the Tile objects
+# the x Coordinates to be passed to the Tile objects
 x_coords = [4.3, 3.4, 2.9, 2.50, 2.25, 2.0, 1.8, 1.64, 1.5, 1.4]
 
 
