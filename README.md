@@ -10,4 +10,4 @@
      3) You can keep playing until you have either discovered the word (you win!) or you run out of strikes (you lose)
      4) At any point if you want to exit the game just press the RETURN key, or close the window 
 
-     5) As soon as you either win or lose the Game is over.
+     5) When you win or lose you can press any key to start a new game.

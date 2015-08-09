@@ -4,9 +4,8 @@ from pyglet.window import key
 
 
 window = pyglet.window.Window()
-# making a list of all the values from [97,122]
+
 list_of_ascii_values = [x for x in range(97,123)]
-print list_of_ascii_values
 # The keys to the diccionary are the integers between [97,122], 
 # and the values their character equivalents
 dic_keys = {}
@@ -15,13 +14,12 @@ for ascii_key in list_of_ascii_values:
 
 ifs = open("hangman_words.txt", 'r')
 all_words = []
-#read all of the words from a file
 for w in ifs.read().split():
 	all_words.append(w)
 
 # Sort the x Coordinates to be passed to the Tile objects
-x_coords = [2.0, 1.8, 1.64, 1.5,1.4, 4.3, 3.5, 3.0, 2.55, 2.25]
-x_coords.sort(reverse= True)
+x_coords = [4.3, 3.4, 2.9, 2.50, 2.25, 2.0, 1.8, 1.64, 1.5, 1.4]
+
 
 class Tile:
 	
@@ -52,9 +50,11 @@ class Tile:
 class Driver:
 	
 	def __init__(self):
+		self.gameOver = False
 		# choose a random word from the list of all_words 
 		self.word = all_words[random.randint(0,len(all_words)-1)]
-		self.total_strikes = len(self.word)*2
+		self.total_strikes = len(self.word)*2 - 2
+		
 		self.total_strikes_label = pyglet.text.Label(str(self.total_strikes),
 									font_name='Times New Roman',
 									font_size=25,
@@ -76,7 +76,22 @@ class Driver:
 			self.tiles.append(t)
 			curr_x_coord += 1
 
+		r1 = random.randint(0,len(self.word)-1)
+		r2 = random.randint(0,len(self.word)-1)
+		if r1 == r2:
+			if r1+1 > len(self.word)-1:
+				r1 -= 1
+			else:
+				r1 += 1
+		self.update(self.word[r1].lower())
+		self.update(self.word[r2].lower())
+
+
+
 	def update(self, input_char):
+		if self.current_strikes == self.total_strikes:
+			return 
+
 		total_uncovered = 0
 		for t in self.tiles:
 			# add up all of the Tiles that where uncovered for the first time during this round
@@ -93,26 +108,37 @@ class Driver:
 		player_won = 0
 		for t in self.tiles:
 			player_won += t.draw()
-		# if all of the Tiles have been uncovered
+		# check if all of the Tiles have been uncovered
 		if player_won == len(self.word):
-			label_won = pyglet.text.Label('You won!',
+			label_won = pyglet.text.Label('You won! Press a key to play again.',
 						font_name='Times New Roman',
-						font_size=36,
+						font_size=25,
 						x=window.width//2, y=window.height//2.5,
 				        anchor_x='center', anchor_y='center')
 			
 			label_won.draw()
+			self.gameOver = True
+			
+			
 		
 		if self.current_strikes >= self.total_strikes:
-			label_lose = pyglet.text.Label("You lost!",
+			label_lose = pyglet.text.Label("You lost! Press a key to play again.",
 									font_name='Times New Roman',
 									font_size=25,
 									x=window.width//2, y=window.height//2.5,
-									anchor_x='right', anchor_y='center')
+									anchor_x='center', anchor_y='center')
 			label_lose.draw()
+			self.gameOver = True
+			
+			
 			
 		self.total_strikes_label.draw()
 		self.current_strikes_label.draw()
+
+	def isGameOver(self):
+		return self.gameOver
+
+	
 
 	
 # Static labels that are not dynamically updated during the program
@@ -133,31 +159,32 @@ out_of = pyglet.text.Label('out of',
 							x=window.width//1.3, y=window.height//2,
 							anchor_x='right', anchor_y='center')
 
-# testcases 1, testing the Tile constructor method:
-try:
-	mytile = Tile()
-except:
-	print "You need to provide parameters for the constructor."
 
-# testcases 2, testing the Driver constructor method:
-try:
-	mydriver = Driver("jsfjsd")
-except:
-	print "The driver takes no parameters"
+class Game:
+	
+	def __init__(self):
+		self.driver = Driver()
 
-driver = Driver()
+	def draw(self):
+		if self.driver.isGameOver():
+			self.driver = Driver()
+
+		self.driver.draw()
+
+game = Game()
+
 @window.event
 def on_draw():
 	window.clear()
 	label.draw()
 	number_of_strikes.draw()
 	out_of.draw()
-	driver.draw()
-	
+	game.draw()
+
 @window.event
 def on_key_press(symbol, modifiers):
 	if symbol in dic_keys:
-		driver.update(dic_keys[symbol])
+		game.driver.update(dic_keys[symbol])
 	elif symbol == key.RETURN:
 			window.close()
 
