@@ -2,6 +2,7 @@
 ==============
 
 ### Required Modules:
+  - python 2.6
   - Need to pip install the pyglet module before running the hangman.py file
 
 ### Game rules:
